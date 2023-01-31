@@ -14,6 +14,15 @@ expected = cfg_keys + "lib_name user branch license status min_python audience l
 for o in expected: assert o in cfg, "missing expected setting: {}".format(o)
 setup_cfg = {o:cfg[o] for o in cfg_keys}
 
+fastclock_module = Extension('fastclock',
+                    sources = ['fastclock/rk4.c', 
+                               'fastclock/fastclock.c', 
+                               'fastclock/spmodel.c', 
+                               'fastclock/utils.c'],
+                    extra_compile_args = [''],
+                    include_dirs = ['fastclock'],
+                    language = "c")
+
 licenses = {
     'apache2': ('Apache Software License 2.0','OSI Approved :: Apache Software License'),
     'mit': ('MIT License', 'OSI Approved :: MIT License'),
@@ -43,6 +52,8 @@ setuptools.setup(
     packages = setuptools.find_packages(),
     include_package_data = True,
     install_requires = requirements,
+    #headers=['fastclock/rk4.h', 'fastclock/spmodel.h', 'fastclock/utils.h'],
+    ext_modules= [fastclock_module],
     extras_require={ 'dev': dev_requirements },
     dependency_links = cfg.get('dep_links','').split(),
     python_requires  = '>=' + cfg['min_python'],
