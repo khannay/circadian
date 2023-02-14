@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="This notebook defines circadian models in a common framework">
+
+<title>circadian - Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="circadian - Models">
+<meta property="og:description" content="This notebook defines circadian models in a common framework">
+<meta property="og:site-name" content="circadian">
+<meta name="twitter:title" content="circadian - Models">
+<meta name="twitter:description" content="This notebook defines circadian models in a common framework">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">circadian</span>
+    </a>
+  </div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Models</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Circadian</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./models.html" class="sidebar-item-text sidebar-link active">Models</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lights.html" class="sidebar-item-text sidebar-link">Lights</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prc.html" class="sidebar-item-text sidebar-link">PRC</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./plots.html" class="sidebar-item-text sidebar-link">Plots</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./metrics.html" class="sidebar-item-text sidebar-link">Metrics</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./readers.html" class="sidebar-item-text sidebar-link">Readers</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sleep.html" class="sidebar-item-text sidebar-link">Sleep</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./utils.html" class="sidebar-item-text sidebar-link">Utilities</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./phasetools.html" class="sidebar-item-text sidebar-link">Phase Tools</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cli.html" class="sidebar-item-text sidebar-link">CLI</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#dynamicaltrajectory" id="toc-dynamicaltrajectory" class="nav-link active" data-scroll-target="#dynamicaltrajectory">DynamicalTrajectory</a></li>
+  <li><a href="#dynamicaltrajectory.__call__" id="toc-dynamicaltrajectory.__call__" class="nav-link" data-scroll-target="#dynamicaltrajectory.__call__">DynamicalTrajectory.__call__</a></li>
+  <li><a href="#abstract-base-class-circadian-model" id="toc-abstract-base-class-circadian-model" class="nav-link" data-scroll-target="#abstract-base-class-circadian-model">Abstract Base Class: Circadian Model</a>
+  <ul class="collapse">
+  <li><a href="#circadianmodel" id="toc-circadianmodel" class="nav-link" data-scroll-target="#circadianmodel">CircadianModel</a></li>
+  <li><a href="#circadianmodel.__init__" id="toc-circadianmodel.__init__" class="nav-link" data-scroll-target="#circadianmodel.__init__">CircadianModel.__init__</a></li>
+  <li><a href="#circadianmodel.get_parameters" id="toc-circadianmodel.get_parameters" class="nav-link" data-scroll-target="#circadianmodel.get_parameters">CircadianModel.get_parameters</a></li>
+  <li><a href="#circadianmodel.__call__" id="toc-circadianmodel.__call__" class="nav-link" data-scroll-target="#circadianmodel.__call__">CircadianModel.__call__</a></li>
+  <li><a href="#circadianmodel.integrate_model" id="toc-circadianmodel.integrate_model" class="nav-link" data-scroll-target="#circadianmodel.integrate_model">CircadianModel.integrate_model</a></li>
+  <li><a href="#circadianmodel.dlmos" id="toc-circadianmodel.dlmos" class="nav-link" data-scroll-target="#circadianmodel.dlmos">CircadianModel.dlmos</a></li>
+  <li><a href="#circadianmodel.cbt" id="toc-circadianmodel.cbt" class="nav-link" data-scroll-target="#circadianmodel.cbt">CircadianModel.cbt</a></li>
+  <li><a href="#circadianmodel.observer" id="toc-circadianmodel.observer" class="nav-link" data-scroll-target="#circadianmodel.observer">CircadianModel.observer</a></li>
+  <li><a href="#circadianmodel.amplitude" id="toc-circadianmodel.amplitude" class="nav-link" data-scroll-target="#circadianmodel.amplitude">CircadianModel.amplitude</a></li>
+  <li><a href="#circadianmodel.phase" id="toc-circadianmodel.phase" class="nav-link" data-scroll-target="#circadianmodel.phase">CircadianModel.phase</a></li>
+  <li><a href="#circadianmodel.default_initial_conditions" id="toc-circadianmodel.default_initial_conditions" class="nav-link" data-scroll-target="#circadianmodel.default_initial_conditions">CircadianModel.default_initial_conditions</a></li>
+  <li><a href="#circadianmodel.initial_conditions_loop" id="toc-circadianmodel.initial_conditions_loop" class="nav-link" data-scroll-target="#circadianmodel.initial_conditions_loop">CircadianModel.initial_conditions_loop</a></li>
+  </ul></li>
+  <li><a href="#forger99" id="toc-forger99" class="nav-link" data-scroll-target="#forger99">Forger99</a>
+  <ul class="collapse">
+  <li><a href="#forger99model" id="toc-forger99model" class="nav-link" data-scroll-target="#forger99model">Forger99Model</a></li>
+  <li><a href="#forger99model.derv" id="toc-forger99model.derv" class="nav-link" data-scroll-target="#forger99model.derv">Forger99Model.derv</a></li>
+  </ul></li>
+  <li><a href="#hannay19tp" id="toc-hannay19tp" class="nav-link" data-scroll-target="#hannay19tp">Hannay19TP</a>
+  <ul class="collapse">
+  <li><a href="#hannay19tp-1" id="toc-hannay19tp-1" class="nav-link" data-scroll-target="#hannay19tp-1">Hannay19TP</a></li>
+  <li><a href="#hannay19tp.derv" id="toc-hannay19tp.derv" class="nav-link" data-scroll-target="#hannay19tp.derv">Hannay19TP.derv</a></li>
+  </ul></li>
+  <li><a href="#hannay19" id="toc-hannay19" class="nav-link" data-scroll-target="#hannay19">Hannay19</a>
+  <ul class="collapse">
+  <li><a href="#hannay19-1" id="toc-hannay19-1" class="nav-link" data-scroll-target="#hannay19-1">Hannay19</a></li>
+  </ul></li>
+  <li><a href="#models-coming-soon" id="toc-models-coming-soon" class="nav-link" data-scroll-target="#models-coming-soon">Models Coming Soon</a></li>
+  <li><a href="#non-photic-model-hilaire-2007" id="toc-non-photic-model-hilaire-2007" class="nav-link" data-scroll-target="#non-photic-model-hilaire-2007">Non Photic Model ( Hilaire 2007)</a>
+  <ul class="collapse">
+  <li><a href="#hilaire2007" id="toc-hilaire2007" class="nav-link" data-scroll-target="#hilaire2007">Hilaire2007</a></li>
+  </ul></li>
+  <li><a href="#kronauer-jewett-model" id="toc-kronauer-jewett-model" class="nav-link" data-scroll-target="#kronauer-jewett-model">Kronauer-Jewett Model</a>
+  <ul class="collapse">
+  <li><a href="#kronauerjewett" id="toc-kronauerjewett" class="nav-link" data-scroll-target="#kronauerjewett">KronauerJewett</a></li>
+  </ul></li>
+  <li><a href="#phase-dynamics-model-nakao02" id="toc-phase-dynamics-model-nakao02" class="nav-link" data-scroll-target="#phase-dynamics-model-nakao02">Phase Dynamics Model Nakao02</a>
+  <ul class="collapse">
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/khannay/circadian/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Models</h1>
+</div>
+
+<div>
+  <div class="description">
+    This notebook defines circadian models in a common framework
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<p>Lets first define a helper class to store the solutions for differential equation models.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L25" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="dynamicaltrajectory" class="level3">
+<h3 class="anchored" data-anchor-id="dynamicaltrajectory">DynamicalTrajectory</h3>
+<blockquote class="blockquote">
+<pre><code> DynamicalTrajectory (ts:numpy.ndarray, states:numpy.ndarray)</code></pre>
+</blockquote>
+<p>A class to store a solutions that contains both the time points and the states.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ts</td>
+<td>ndarray</td>
+<td>time points</td>
+</tr>
+<tr class="even">
+<td>states</td>
+<td>ndarray</td>
+<td>states at time points</td>
+</tr>
+<tr class="odd">
+<td><strong>Returns</strong></td>
+<td><strong>None</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L38" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="dynamicaltrajectory.__call__" class="level3">
+<h3 class="anchored" data-anchor-id="dynamicaltrajectory.__call__">DynamicalTrajectory.__call__</h3>
+<blockquote class="blockquote">
+<pre><code> DynamicalTrajectory.__call__ (t:float)</code></pre>
+</blockquote>
+<p>Return the state at time t, linearly interpolated</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t</td>
+<td>float</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>ndarray</strong></td>
+<td><strong>state of the system</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="abstract-base-class-circadian-model" class="level2">
+<h2 class="anchored" data-anchor-id="abstract-base-class-circadian-model">Abstract Base Class: Circadian Model</h2>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L66" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="circadianmodel" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel">CircadianModel</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel (params:dict=None)</code></pre>
+</blockquote>
+<p>Abstract base class for circadian models, defines the interface for all models</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>params</td>
+<td>dict</td>
+<td>None</td>
+<td>dictionary of parameters for the model, if None then the default parameters are used</td>
+</tr>
+</tbody>
+</table>
+<p>Each of the models can be initialized by using a dictionary of parameter values, although they have default parameter values taken from the publications. The dictionary passed can overwrite just one of the parameters and leave the remaining as the default values.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L69" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.__init__" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.__init__">CircadianModel.__init__</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.__init__ (params:dict=None)</code></pre>
+</blockquote>
+<p>Creates a new instance of the model</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>params</td>
+<td>dict</td>
+<td>None</td>
+<td>dictionary of parameters for the model, if None then the default parameters are used</td>
+</tr>
+</tbody>
+</table>
+<p>The parameters for the model can be returned using</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L83" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.get_parameters" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.get_parameters">CircadianModel.get_parameters</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.get_parameters ()</code></pre>
+</blockquote>
+<p>Returns the parameters for the model</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L180" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.__call__" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.__call__">CircadianModel.__call__</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.__call__ (ts:numpy.ndarray, light_est:numpy.ndarray,
+                          state:numpy.ndarray, *args, **kwargs)</code></pre>
+</blockquote>
+<p>Wrapper to integrate_model, can just call the model object directly</p>
+<table class="table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ts</td>
+<td>ndarray</td>
+<td>Array of time points, also determines step size of RK4 solver</td>
+</tr>
+<tr class="even">
+<td>light_est</td>
+<td>ndarray</td>
+<td>Array of light estimates, should be the same length as ts</td>
+</tr>
+<tr class="odd">
+<td>state</td>
+<td>ndarray</td>
+<td>Initial state of the model</td>
+</tr>
+<tr class="even">
+<td>args</td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>kwargs</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L115" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.integrate_model" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.integrate_model">CircadianModel.integrate_model</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.integrate_model (ts:numpy.ndarray,
+                                 light_est:numpy.ndarray,
+                                 state:numpy.ndarray)</code></pre>
+</blockquote>
+<table class="table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ts</td>
+<td>ndarray</td>
+<td>Array of time points, also determines step size of RK4 solver</td>
+</tr>
+<tr class="even">
+<td>light_est</td>
+<td>ndarray</td>
+<td>Array of light estimates, should be the same length as ts</td>
+</tr>
+<tr class="odd">
+<td>state</td>
+<td>ndarray</td>
+<td>Initial state of the model</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>DynamicalTrajectory</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L132" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.dlmos" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.dlmos">CircadianModel.dlmos</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.dlmos (trajectory:__main__.DynamicalTrajectory)</code></pre>
+</blockquote>
+<p>Finds the Dim Light Melatonin Onset (DLMO) markers for the model along a trajectory</p>
+<table class="table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>trajectory</td>
+<td>DynamicalTrajectory</td>
+<td>solution from integrate_model</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>ndarray</strong></td>
+<td><strong>array of times when the dlmo occurs for the model</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L140" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.cbt" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.cbt">CircadianModel.cbt</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.cbt (trajectory:__main__.DynamicalTrajectory)</code></pre>
+</blockquote>
+<p>Finds the core body temperature minumum markers for the model along a trajectory</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>trajectory</td>
+<td>DynamicalTrajectory</td>
+<td>solution from integrate_model</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>ndarray</strong></td>
+<td><strong>array of times when the cbt occurs</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L148" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.observer" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.observer">CircadianModel.observer</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.observer (trajectory:numpy.ndarray, observer_func:&lt;built-
+                          infunctioncallable&gt;)</code></pre>
+</blockquote>
+<p>Defines a generic observer for the model, this will return the times when the observer_func changes sign</p>
+<table class="table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>trajectory</td>
+<td>ndarray</td>
+<td>solution from integrate_model</td>
+</tr>
+<tr class="even">
+<td>observer_func</td>
+<td>callable</td>
+<td>function that takes the state of the model and returns a scalar will be triggered when the sign of the function changes</td>
+</tr>
+<tr class="odd">
+<td><strong>Returns</strong></td>
+<td><strong>array</strong></td>
+<td><strong>this will return the times when the observer func changes signs</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L158" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.amplitude" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.amplitude">CircadianModel.amplitude</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.amplitude (state:numpy.ndarray)</code></pre>
+</blockquote>
+<p>Gives the amplitude of the model at a given state</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>state</td>
+<td>ndarray</td>
+<td>dynamic state of the model</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>float</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L166" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.phase" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.phase">CircadianModel.phase</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.phase (state:numpy.ndarray)</code></pre>
+</blockquote>
+<p>Gives the phase of the model at a given state</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>state</td>
+<td>ndarray</td>
+<td>dynamic state of the model</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>float</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L174" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.default_initial_conditions" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.default_initial_conditions">CircadianModel.default_initial_conditions</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.default_initial_conditions ()</code></pre>
+</blockquote>
+<p>Defines some default initial conditions for the model</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L189" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="circadianmodel.initial_conditions_loop" class="level3">
+<h3 class="anchored" data-anchor-id="circadianmodel.initial_conditions_loop">CircadianModel.initial_conditions_loop</h3>
+<blockquote class="blockquote">
+<pre><code> CircadianModel.initial_conditions_loop (ts:numpy.ndarray,
+                                         light_est:numpy.ndarray,
+                                         num_loops:int=30)</code></pre>
+</blockquote>
+<p>Estimate the starting values by looping the given light_estimate, commonly used for to estimate the initial conditions assumes the individual lives the same schedule repeatedly</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ts</td>
+<td>ndarray</td>
+<td></td>
+<td>Array of time points, also determines step size of RK4 solver</td>
+</tr>
+<tr class="even">
+<td>light_est</td>
+<td>ndarray</td>
+<td></td>
+<td>Array of light estimates, should be the same length as ts</td>
+</tr>
+<tr class="odd">
+<td>num_loops</td>
+<td>int</td>
+<td>30</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>ndarray</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="forger99" class="level2">
+<h2 class="anchored" data-anchor-id="forger99">Forger99</h2>
+<p>This model is taken from <span class="citation" data-cites="forger_simpler_1999">(<a href="#ref-forger_simpler_1999" role="doc-biblioref">Forger, Jewett, and Kronauer 1999</a>)</span> which defines a simplification of previous iterations of the van der Pol based oscillator models published in the 1990s. It is one of the most popular models in the circadian literature. This implementation uses the parameters taken from <span class="citation" data-cites="serkh_optimal_2014">(<a href="#ref-serkh_optimal_2014" role="doc-biblioref">Serkh and Forger 2014</a>)</span> rather than the parameters from the original paper.</p>
+<p>The model states are defined by three dynamic variables <span class="math inline">\((x, x_c, n)\)</span>. These states are related to circadian rhythms by defining the core body temperature minimum (a biomarker for circadian state) to be the minimum of the <span class="math inline">\(x\)</span> variable.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L205" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="forger99model" class="level3">
+<h3 class="anchored" data-anchor-id="forger99model">Forger99Model</h3>
+<blockquote class="blockquote">
+<pre><code> Forger99Model (params:dict=None)</code></pre>
+</blockquote>
+<p>Implementation of the Forger 1999 model</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L304" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="forger99model.derv" class="level3">
+<h3 class="anchored" data-anchor-id="forger99model.derv">Forger99Model.derv</h3>
+<blockquote class="blockquote">
+<pre><code> Forger99Model.derv (y:numpy.ndarray, light:float)</code></pre>
+</blockquote>
+<table class="table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>y</td>
+<td>ndarray</td>
+<td>dynamical state (x, xc, n)</td>
+</tr>
+<tr class="even">
+<td>light</td>
+<td>float</td>
+<td>light value in lux</td>
+</tr>
+<tr class="odd">
+<td><strong>Returns</strong></td>
+<td><strong>ndarray</strong></td>
+<td><strong>This defines the ode system for the forger 99 model</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Here is how we can define the model and run a simulation</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">7</span>, <span class="fl">0.1</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>light_values <span class="op">=</span> np.zeros_like(ts) <span class="co"># simulate in darkness</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>fmodel <span class="op">=</span> Forger99Model()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>trajectory <span class="op">=</span> fmodel(ts, light_values, state<span class="op">=</span>np.array([<span class="fl">0.10</span>,<span class="op">-</span><span class="fl">0.10</span>,<span class="fl">0.0</span>]))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>plt.plot(trajectory.states[<span class="dv">0</span>,:], trajectory.states[<span class="dv">1</span>,:])</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Phase plane plot of Forger99 Model in darkness"</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"$x_c$"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>We can also make a time plot of the dynamics</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Integrate observer for the Forger 99 model</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>plt.plot(trajectory.ts, trajectory.states[<span class="dv">0</span>,:], label<span class="op">=</span><span class="st">"x"</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>plt.plot(trajectory.ts, trajectory.states[<span class="dv">1</span>,:], label<span class="op">=</span><span class="st">"$x_c$"</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Time (hours)"</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"State"</span>)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Forger 99 model in darkness"</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>We can also run a the model for a whole collection of initial conditions in one pass by just adding a batch dimension to the initial state. Here we show how to run the Forger model for 100 random initial conditions centered on an initial estimate.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">7</span>, <span class="fl">0.1</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>light_values <span class="op">=</span> np.zeros_like(ts) </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>fmodel <span class="op">=</span> Forger99Model()</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>initial_conditions_batch <span class="op">=</span> np.array([<span class="fl">0.10</span>,<span class="op">-</span><span class="fl">0.10</span>,<span class="fl">0.0</span>]) <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, (<span class="dv">100</span>,<span class="dv">3</span>))</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>trajectory <span class="op">=</span> fmodel.integrate_model(ts, </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>                             light_values, </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>                             state<span class="op">=</span>initial_conditions_batch)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">100</span>):</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    plt.plot(trajectory.ts, trajectory.states[i,<span class="dv">1</span>,:], color<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    plt.plot(trajectory.ts, trajectory.states[i,<span class="dv">0</span>,:], color<span class="op">=</span><span class="st">'gold'</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Time (hours)"</span>)</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"State"</span>)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Forger99 model (batch) in darkness"</span>)</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>plt.show()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Because adding a batch dimension is just using larger numpy arrays with the same vectorized operations under the hood we can run fairly larg batches with very little performance cost</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="at">@benchmark</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> batched_run(batch_size: <span class="bu">int</span>):</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    initial_conditions_batch <span class="op">=</span> np.array([<span class="fl">0.10</span>,<span class="op">-</span><span class="fl">0.10</span>,<span class="fl">0.0</span>]) <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.1</span>, (batch_size,<span class="dv">3</span>))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    sol <span class="op">=</span> fmodel.integrate_model(ts, </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                             light_values, </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                             state<span class="op">=</span>initial_conditions_batch)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> [<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">100</span>,<span class="dv">500</span>,<span class="dv">1000</span>, <span class="dv">5000</span>]:</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    batched_run(i)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Function batched_run(1,) {} Took 0.1166 seconds
+Function batched_run(10,) {} Took 0.1125 seconds
+Function batched_run(100,) {} Took 0.1285 seconds
+Function batched_run(500,) {} Took 0.1895 seconds
+Function batched_run(1000,) {} Took 0.2711 seconds
+Function batched_run(5000,) {} Took 0.9169 seconds</code></pre>
+</div>
+</div>
+<p>We can also easily get predictions of the Dim Light Melatonin Onset (DLMO) and Core Body Temperature minimum (CBT). The time between these markers gives the period of the oscillator over that time frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">7</span>, <span class="fl">0.1</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>light_values <span class="op">=</span> np.zeros_like(ts) </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>fmodel <span class="op">=</span> Forger99Model()</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>trajectory <span class="op">=</span> fmodel(ts, light_values, state<span class="op">=</span>np.array([<span class="fl">0.10</span>,<span class="op">-</span><span class="fl">0.10</span>,<span class="fl">0.0</span>]))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>cbt <span class="op">=</span> fmodel.cbt(trajectory)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>dlmos <span class="op">=</span> fmodel.dlmos(trajectory)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Hours between CBTs: </span><span class="sc">{</span>np<span class="sc">.</span>diff(cbt)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Hours between DLMOs: </span><span class="sc">{</span>np<span class="sc">.</span>diff(dlmos)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hours between CBTs: [24.3 24.1 24.2 24.1 24.2 24.2]
+Hours between DLMOs: [24.3 24.1 24.2 24.1 24.2 24.2]</code></pre>
+</div>
+</div>
+<p>The values away from 24.2 give the period while the transients die away from the initial conditions, you can see that the <em>freerunning</em> period (period with no light time cues) is 24.2 which roughly matches the average value from experimental studies.</p>
+<p>We can adjust this by passing in a custom parameter for <span class="math inline">\(\tau_x\)</span> (taux)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fmodel_short_period <span class="op">=</span> Forger99Model({ <span class="st">'taux'</span>: <span class="fl">23.8</span>})</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>trajectory <span class="op">=</span> fmodel_short_period.integrate_model(ts,light_est<span class="op">=</span>light_values, state<span class="op">=</span>np.array([<span class="fl">0.10</span>,<span class="op">-</span><span class="fl">0.10</span>,<span class="fl">0.0</span>]))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>dlmos <span class="op">=</span> fmodel_short_period.dlmos(trajectory)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>cbt <span class="op">=</span> fmodel_short_period.cbt(trajectory)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Hours between DLMOs: </span><span class="sc">{</span>np<span class="sc">.</span>diff(dlmos)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Hours between CBTs: </span><span class="sc">{</span>np<span class="sc">.</span>diff(cbt)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Hours between DLMOs: [23.8 23.8 23.7 23.8 23.8 23.8]
+Hours between CBTs: [23.8 23.8 23.7 23.8 23.8 23.8]</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="hannay19tp" class="level2">
+<h2 class="anchored" data-anchor-id="hannay19tp">Hannay19TP</h2>
+<p>This model defines the two population model from <span class="citation" data-cites="hannay_macroscopic_2019">(<a href="#ref-hannay_macroscopic_2019" role="doc-biblioref">Hannay, Booth, and Forger 2019</a>)</span>.Note, this model rotates counterclockwise in accordance with the usual convention in mathematics. The VDP family of models rotate clockwise. This can be confusing when trying to compare phase plane plots between the models, but is fixable with a simple rotation.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L355" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="hannay19tp-1" class="level3">
+<h3 class="anchored" data-anchor-id="hannay19tp-1">Hannay19TP</h3>
+<blockquote class="blockquote">
+<pre><code> Hannay19TP (params:dict=None)</code></pre>
+</blockquote>
+<p>The Hannay et al 2019 two population model, which models the ventral and dorsal SCN populations</p>
+<table class="table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 25%">
+<col style="width: 34%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Default</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>params</td>
+<td>dict</td>
+<td>None</td>
+<td>Dict of parameters to set, the published values are used by default</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>None</strong></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L454" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="hannay19tp.derv" class="level3">
+<h3 class="anchored" data-anchor-id="hannay19tp.derv">Hannay19TP.derv</h3>
+<blockquote class="blockquote">
+<pre><code> Hannay19TP.derv (y:numpy.ndarray, light:float)</code></pre>
+</blockquote>
+<table class="table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 38%">
+<col style="width: 52%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>y</td>
+<td>ndarray</td>
+<td>state vector for the dynamical system (Rv, Rd, Psiv, Psid, n)</td>
+</tr>
+<tr class="even">
+<td>light</td>
+<td>float</td>
+<td>light intensity in lux</td>
+</tr>
+<tr class="odd">
+<td><strong>Returns</strong></td>
+<td><strong>ndarray</strong></td>
+<td><strong>derivative of the state vector</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="hannay19" class="level2">
+<h2 class="anchored" data-anchor-id="hannay19">Hannay19</h2>
+<p>This file defines the Hannay et al single population model from <span class="citation" data-cites="hannay_macroscopic_2019">(<a href="#ref-hannay_macroscopic_2019" role="doc-biblioref">Hannay, Booth, and Forger 2019</a>)</span>. It describes the circadian state using polar coordinates <span class="math inline">\((R, \psi)\)</span> and features a slight modification of the process L light processing function used in the VDP family of models <span class="citation" data-cites="forger_simpler_1999">(<a href="#ref-forger_simpler_1999" role="doc-biblioref">Forger, Jewett, and Kronauer 1999</a>)</span>. The model is systematically derived from a high-dimensional model for each clock neuron <span class="citation" data-cites="hannay_macroscopic_2018">(<a href="#ref-hannay_macroscopic_2018" role="doc-biblioref">Hannay, Forger, and Booth 2018</a>)</span>.</p>
+<p>Here are some marker states for that model (all equals should be read as approx)</p>
+<p>CBT=DLMO+7hrs CBT=DLMO_mid+2hrs CBT=circadian phase pi in the model DLMO=circadian phase 5pi/12=1.309 in the model MelatoninOffset=DLMO+10hrs</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L520" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="hannay19-1" class="level3">
+<h3 class="anchored" data-anchor-id="hannay19-1">Hannay19</h3>
+<blockquote class="blockquote">
+<pre><code> Hannay19 (params:dict=None)</code></pre>
+</blockquote>
+<p>A simple python program to integrate the human circadian rhythms model (Hannay et al 2019) for a given light schedule</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>spmodel <span class="op">=</span> Hannay19()</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>default_ic <span class="op">=</span> spmodel.default_initial_conditions</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>spmodel <span class="op">=</span> Hannay19()</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">7</span>, <span class="fl">0.10</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>light_values <span class="op">=</span> np.zeros(<span class="bu">len</span>(ts))</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>trajectory<span class="op">=</span> spmodel(ts, light_values, np.array([<span class="fl">0.10</span>, <span class="fl">0.0</span>,<span class="fl">0.0</span>]))</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>plt.plot(trajectory.states[<span class="dv">0</span>,:]<span class="op">*</span>np.cos(trajectory.states[<span class="dv">1</span>,:]), trajectory.states[<span class="dv">0</span>,:]<span class="op">*</span>np.sin(trajectory.states[<span class="dv">1</span>,:]))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Phase plot of the Hannay19 model"</span>)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"R cos(Psi)"</span>)</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"R sin(Psi)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Text(0.5, 0, 'R sin(Psi)')</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-28-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Because of the way the integration code is written it is simple to run a collection of initial conditions through the model by just adding an batch dimension (terminology taken from the machine learning literature). This shows an example of running the model through</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> circadian.lights <span class="im">import</span> <span class="op">*</span>  </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>spmodel <span class="op">=</span> Hannay19()</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">5</span>, <span class="fl">0.10</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>light_func <span class="op">=</span> Light.ShiftWorkLight(dayson<span class="op">=</span><span class="dv">3</span>, daysoff<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>light_values <span class="op">=</span> light_func(ts)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>num_batches <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>initial_conditions_batch <span class="op">=</span> np.array([<span class="fl">0.70</span>, np.pi,<span class="fl">0.0</span>]) <span class="op">+</span> np.random.randn(num_batches,<span class="dv">3</span>)<span class="op">*</span><span class="fl">0.20</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>trajectory <span class="op">=</span> spmodel(ts, light_values, initial_conditions_batch)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch_idx <span class="kw">in</span> <span class="bu">range</span>(num_batches):</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    plt.plot(trajectory.ts <span class="op">/</span> <span class="fl">24.0</span>, trajectory.states[batch_idx, <span class="dv">0</span>,:]<span class="op">*</span>np.sin(trajectory.states[batch_idx,<span class="dv">1</span>,:]), color<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="ss">f"</span><span class="sc">{</span>num_batches<span class="sc">}</span><span class="ss"> batches of initial conditions"</span>)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"R sin(Psi)"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>plt.hist((trajectory.states[:,<span class="dv">1</span>,<span class="op">-</span><span class="dv">1</span>] <span class="op">-</span> np.mean(trajectory.states[:,<span class="dv">1</span>,<span class="op">-</span><span class="dv">1</span>])) , bins<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Ending phase dispersion"</span>)<span class="op">;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>plt.hist((trajectory.states[:,<span class="dv">1</span>,<span class="dv">0</span>] <span class="op">-</span> np.mean(trajectory.states[:,<span class="dv">1</span>,<span class="dv">0</span>])) , bins<span class="op">=</span><span class="dv">20</span>, color<span class="op">=</span><span class="st">'green'</span>, alpha<span class="op">=</span><span class="fl">0.5</span>, label<span class="op">=</span><span class="st">"Starting phase dispersion"</span>)<span class="op">;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>plt.legend()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-30-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>We can also easily run the model over an batch of parameters just by passing in an array for the value of the parameters. The only gotcha is that you also need to pass in initial conditions which the same batch dimension to ensure the array arithmetic works out in the integrator.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>num_batches <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>spmodel <span class="op">=</span> Hannay19({ <span class="st">'tau'</span> : np.linspace(<span class="fl">23.5</span>,<span class="fl">24.5</span>, num_batches), <span class="st">'A1'</span> : <span class="fl">0.32</span> <span class="op">+</span> <span class="fl">0.05</span><span class="op">*</span>np.random.randn(num_batches) })</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>initial_conditions_batch <span class="op">=</span> np.array([<span class="fl">0.70</span>, np.pi,<span class="fl">0.0</span>]) <span class="op">+</span> np.zeros((num_batches,<span class="dv">3</span>))</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>light_func <span class="op">=</span> Light.ShiftWorkLight(dayson<span class="op">=</span><span class="dv">2</span>, daysoff<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>ts <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">14</span>, <span class="fl">0.10</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>light_values <span class="op">=</span> light_func(ts, repeat_period<span class="op">=</span><span class="fl">24.0</span><span class="op">*</span><span class="dv">7</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>trajectory <span class="op">=</span> spmodel.integrate_model(ts, light_est<span class="op">=</span>light_values, state<span class="op">=</span>initial_conditions_batch)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch_idx <span class="kw">in</span> <span class="bu">range</span>(num_batches):</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    plt.plot(trajectory.ts <span class="op">/</span> <span class="fl">24.0</span>, trajectory.states[batch_idx, <span class="dv">0</span>,:]<span class="op">*</span>np.sin(trajectory.states[batch_idx,<span class="dv">1</span>,:]), color<span class="op">=</span><span class="st">'blue'</span>, alpha<span class="op">=</span><span class="fl">0.10</span>)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="ss">f"</span><span class="sc">{</span>num_batches<span class="sc">}</span><span class="ss"> batches of parameters"</span>)</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Time (days)"</span>)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"R sin(Psi)"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-31-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="models-coming-soon" class="level2">
+<h2 class="anchored" data-anchor-id="models-coming-soon">Models Coming Soon</h2>
+</section>
+<section id="non-photic-model-hilaire-2007" class="level2">
+<h2 class="anchored" data-anchor-id="non-photic-model-hilaire-2007">Non Photic Model ( Hilaire 2007)</h2>
+<p>This implements the model from <span class="citation" data-cites="hilaire_addition_2007">(<a href="#ref-hilaire_addition_2007" role="doc-biblioref">Hilaire et al. 2007</a>)</span>. It describes the circadian state using the <span class="math inline">\((x, x_c, n)\)</span> variables as seen in the other VDP based models. This model also uses sleep-wake information as a non-photic input.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L664" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="hilaire2007" class="level3">
+<h3 class="anchored" data-anchor-id="hilaire2007">Hilaire2007</h3>
+<blockquote class="blockquote">
+<pre><code> Hilaire2007 (params:dict=None)</code></pre>
+</blockquote>
+<p>Abstract base class for circadian models, defines the interface for all models</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>hmodel <span class="op">=</span> Hilaire2007() </span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(hmodel.derv(<span class="dv">0</span>, hmodel.default_initial_conditions, <span class="dv">1000</span>, <span class="fl">1.0</span>))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(hmodel.step_rk4(<span class="dv">0</span>, hmodel.default_initial_conditions, <span class="dv">1000</span>, <span class="fl">1.0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[ 0.16975025 -0.02067777  1.76968823]
+[-0.28695536 -1.13159738  0.15893028]</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>sol <span class="op">=</span> hmodel.integrate_model(np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span><span class="dv">100</span>, <span class="fl">0.1</span>),</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>                             np.random.rand(<span class="dv">240</span><span class="op">*</span><span class="dv">100</span>), </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>                             np.random.rand(<span class="dv">240</span><span class="op">*</span><span class="dv">100</span>), </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>                             hmodel.default_initial_conditions)</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>plt.plot(sol.states[<span class="dv">0</span>, :], sol.states[<span class="dv">1</span>,:])<span class="op">;</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>plt.title(hmodel.<span class="fu">__str__</span>())<span class="op">;</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"x"</span>)<span class="op">;</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"$x_c$"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="kronauer-jewett-model" class="level2">
+<h2 class="anchored" data-anchor-id="kronauer-jewett-model">Kronauer-Jewett Model</h2>
+<p>From the revised limit cycle oscillator model paper.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/models.py#L801" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="kronauerjewett" class="level3">
+<h3 class="anchored" data-anchor-id="kronauerjewett">KronauerJewett</h3>
+<blockquote class="blockquote">
+<pre><code> KronauerJewett (params:dict=None)</code></pre>
+</blockquote>
+<p>Higher order vdp model for the circadian clock</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>kmodel <span class="op">=</span> KronauerJewett({<span class="st">"taux"</span>: np.linspace(<span class="fl">23.5</span>,<span class="fl">24.5</span>, <span class="dv">100</span>)})</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>ic <span class="op">=</span> kmodel.default_initial_conditions <span class="op">+</span> np.zeros((<span class="dv">100</span>, <span class="dv">3</span>))</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>sim_days <span class="op">=</span> <span class="dv">10</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>sol <span class="op">=</span> kmodel(ts<span class="op">=</span>np.arange(<span class="dv">0</span>, <span class="dv">24</span><span class="op">*</span>sim_days, <span class="fl">0.1</span>), light_est<span class="op">=</span>np.zeros(<span class="dv">240</span><span class="op">*</span>sim_days), state<span class="op">=</span>ic)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> batch_idx <span class="kw">in</span> <span class="bu">range</span>(sol.batch_size):</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    plt.plot(sol.ts, sol.states[batch_idx, <span class="dv">1</span>,:], color<span class="op">=</span><span class="st">"darkgreen"</span>, alpha<span class="op">=</span><span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="00_models_files/figure-html/cell-36-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>np.diff(kmodel.cbt(sol.get_batch(<span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([24. , 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5])</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>np.diff(kmodel.dlmos(sol.get_batch(<span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>array([24. , 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5, 23.5])</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="phase-dynamics-model-nakao02" class="level2">
+<h2 class="anchored" data-anchor-id="phase-dynamics-model-nakao02">Phase Dynamics Model Nakao02</h2>
+<p><a href="https://pubmed.ncbi.nlm.nih.gov/12375623/">model</a></p>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-forger_simpler_1999" class="csl-entry" role="doc-biblioentry">
+Forger, Daniel B., Megan E. Jewett, and Richard E. Kronauer. 1999. <span>“A <span>Simpler</span> <span>Model</span> of the <span>Human</span> <span>Circadian</span> <span>Pacemaker</span>.”</span> <em>Journal of Biological Rhythms</em> 14 (6): 533–38. <a href="https://doi.org/10.1177/074873099129000867">https://doi.org/10.1177/074873099129000867</a>.
+</div>
+<div id="ref-hannay_macroscopic_2019" class="csl-entry" role="doc-biblioentry">
+Hannay, Kevin M., Victoria Booth, and Daniel B. Forger. 2019. <span>“Macroscopic <span>Models</span> for <span>Human</span> <span>Circadian</span> <span>Rhythms</span>.”</span> <em>Journal of Biological Rhythms</em>, October, 074873041987829. <a href="https://doi.org/10.1177/0748730419878298">https://doi.org/10.1177/0748730419878298</a>.
+</div>
+<div id="ref-hannay_macroscopic_2018" class="csl-entry" role="doc-biblioentry">
+Hannay, Kevin M., Daniel B. Forger, and Victoria Booth. 2018. <span>“Macroscopic Models for Networks of Coupled Biological Oscillators.”</span> <em>Science Advances</em> 4 (8): e1701047. <a href="https://doi.org/10.1126/sciadv.1701047">https://doi.org/10.1126/sciadv.1701047</a>.
+</div>
+<div id="ref-hilaire_addition_2007" class="csl-entry" role="doc-biblioentry">
+Hilaire, M. A St, Elizabeth B. Klerman, S. B S Khalsa, Kenneth P. Wright, Charles A. Czeisler, and Richard E. Kronauer. 2007. <span>“Addition of a Non-Photic Component to a Light-Based Mathematical Model of the Human Circadian Pacemaker.”</span> <em>Journal of Theoretical Biology</em> 247 (4): 583–99. <a href="https://doi.org/10.1016/j.jtbi.2007.04.001">https://doi.org/10.1016/j.jtbi.2007.04.001</a>.
+</div>
+<div id="ref-serkh_optimal_2014" class="csl-entry" role="doc-biblioentry">
+Serkh, Kirill, and Daniel B. Forger. 2014. <span>“Optimal <span>Schedules</span> of <span>Light</span> <span>Exposure</span> for <span>Rapidly</span> <span>Correcting</span> <span>Circadian</span> <span>Misalignment</span>.”</span> <em>PLOS Computational Biology</em> 10 (4): e1003523. <a href="https://doi.org/10.1371/journal.pcbi.1003523">https://doi.org/10.1371/journal.pcbi.1003523</a>.
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

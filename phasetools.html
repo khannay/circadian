@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Some routines for phase extraction from time series">
+
+<title>circadian - Phase Tools</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="circadian - Phase Tools">
+<meta property="og:description" content="Some routines for phase extraction from time series">
+<meta property="og:site-name" content="circadian">
+<meta name="twitter:title" content="circadian - Phase Tools">
+<meta name="twitter:description" content="Some routines for phase extraction from time series">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">circadian</span>
+    </a>
+  </div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title">Phase Tools</h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Circadian</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./models.html" class="sidebar-item-text sidebar-link">Models</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lights.html" class="sidebar-item-text sidebar-link">Lights</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./prc.html" class="sidebar-item-text sidebar-link">PRC</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./plots.html" class="sidebar-item-text sidebar-link">Plots</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./metrics.html" class="sidebar-item-text sidebar-link">Metrics</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./readers.html" class="sidebar-item-text sidebar-link">Readers</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./sleep.html" class="sidebar-item-text sidebar-link">Sleep</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./utils.html" class="sidebar-item-text sidebar-link">Utilities</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./phasetools.html" class="sidebar-item-text sidebar-link active">Phase Tools</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cli.html" class="sidebar-item-text sidebar-link">CLI</a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#cosinor-analysis" id="toc-cosinor-analysis" class="nav-link active" data-scroll-target="#cosinor-analysis">Cosinor Analysis</a>
+  <ul class="collapse">
+  <li><a href="#cosinor" id="toc-cosinor" class="nav-link" data-scroll-target="#cosinor">cosinor</a></li>
+  <li><a href="#cosinor_phase" id="toc-cosinor_phase" class="nav-link" data-scroll-target="#cosinor_phase">cosinor_phase</a></li>
+  <li><a href="#goals-cosinor-with-gaps" id="toc-goals-cosinor-with-gaps" class="nav-link" data-scroll-target="#goals-cosinor-with-gaps">GOALS: Cosinor with gaps</a>
+  <ul class="collapse">
+  <li><a href="#cosinor_goals" id="toc-cosinor_goals" class="nav-link" data-scroll-target="#cosinor_goals">cosinor_goals</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/khannay/circadian/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block">Phase Tools</h1>
+</div>
+
+<div>
+  <div class="description">
+    Some routines for phase extraction from time series
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="cosinor-analysis" class="level1">
+<h1>Cosinor Analysis</h1>
+<p>The simplest and one of the most popular techniques is so-called cosinor analysis, which is a very fancy term for doing a linear regression on cosine transformed data.</p>
+<p><span class="math display">\[ y = A \cos(x + \beta) \]</span></p>
+<p>or in the form that I prefer:</p>
+<p><span class="math display">\[q(t,\phi) = a_1 \sin(\omega t) + a_2 \cos(\omega t) \]</span></p>
+<p>In cosinor analysis the <span class="math inline">\(\omega\)</span> term (the frequency) is taken as a known quantity and the <span class="math inline">\(a_{1,2}\)</span> terms are fit to minimize the least square error.</p>
+<p>Then the phase <span class="math inline">\(\phi\)</span> is given by <span class="math inline">\(\arg(a_2 + i a_1)\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> f_signal_cosinor(t: np.array, phi: <span class="bu">float</span>, tau: <span class="bu">float</span> <span class="op">=</span> <span class="fl">100.0</span>) <span class="op">-&gt;</span> np.array:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi<span class="op">/</span>tau <span class="op">*</span> t <span class="op">-</span> phi)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>phi_true <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>x_sample <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">200</span>, <span class="dv">5</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>y_sample <span class="op">=</span> f_signal_cosinor(x_sample, phi_true) </span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>y_sample_noisy <span class="op">=</span> y_sample <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, x_sample.shape)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_sample,y_sample_noisy, color<span class="op">=</span><span class="st">'k'</span>, s<span class="op">=</span><span class="dv">20</span>, label<span class="op">=</span><span class="st">'Noisy Measurements'</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>plt.plot(x_sample, y_sample, ls <span class="op">=</span> <span class="st">'--'</span>, color <span class="op">=</span> <span class="st">'k'</span>, label <span class="op">=</span> <span class="st">'True Signal'</span>)<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Cosinor Example Signal with Noise'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div id="cosinor-example-data" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="08_phasetools_files/figure-html/cosinor-example-data-output-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Example Cosinor Data</figcaption><p></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It is easy enough to use built in regression functions to find <span class="math inline">\(a_{1,2}\)</span> but we can easily solve this ourselves. First, lets define the terms <span class="math inline">\(y\)</span> is the signal, <span class="math inline">\(t\)</span> is the sampling times the same length as <span class="math inline">\(y\)</span>. The matrix <span class="math inline">\(S\)</span> is formed by taking the sin/cos of the time vectors and placing them in the columns <span class="math inline">\(S = [sin(\omega t); cos(\omega t)]\)</span>. Thus, we can write our system as:</p>
+<p><span class="math display">\[ S a = y \]</span></p>
+<p>where <span class="math inline">\(a = [a_1, a_2]\)</span> are the two coefficients we want to solve for. This regression is especially easy to compute in this case because the matrix <span class="math inline">\(S\)</span> has the property that the columns are orthogonal (S is a orthogonal matrix). This means that <span class="math inline">\(S^T S = I\)</span>, and we can solve the system with one matrix transpose multiplication.</p>
+<p><span class="math display">\[\begin{align}
+Sa = y \\
+S^T S a = S^T y, S^T S = I \\
+a = S^T y
+\end{align}\]</span></p>
+<p>Since <span class="math inline">\(S^T\)</span> only has two columns we can write the matrix-vector product out for each component:</p>
+<p><span class="math display">\[\begin{align}
+a_1 = \frac{ \sin(\omega t) \cdot y}  { || \sin(\omega t) ||^2 } \\
+a_2 = \frac { \cos(\omega t) \cdot y } { || \cos(\omega t) ||^2 }
+\end{align}\]</span> Here is a quick implementation in python.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/phasetools.py#L18" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="cosinor" class="level3">
+<h3 class="anchored" data-anchor-id="cosinor">cosinor</h3>
+<blockquote class="blockquote">
+<pre><code> cosinor (t:&lt;built-infunctionarray&gt;, y:&lt;built-infunctionarray&gt;, tau:float)</code></pre>
+</blockquote>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>Type</strong></th>
+<th><strong>Details</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>t</td>
+<td>array</td>
+<td>time vector</td>
+</tr>
+<tr class="even">
+<td>y</td>
+<td>array</td>
+<td>signal vector</td>
+</tr>
+<tr class="odd">
+<td>tau</td>
+<td>float</td>
+<td>period of cosinor analysis</td>
+</tr>
+<tr class="even">
+<td><strong>Returns</strong></td>
+<td><strong>float</strong></td>
+<td><strong>phase estimate</strong></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/phasetools.py#L32" target="_blank" style="float:right; font-size:smaller">source</a></p>
+</section>
+<section id="cosinor_phase" class="level3">
+<h3 class="anchored" data-anchor-id="cosinor_phase">cosinor_phase</h3>
+<blockquote class="blockquote">
+<pre><code> cosinor_phase (a:&lt;built-infunctionarray&gt;)</code></pre>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>a_coeffs <span class="op">=</span> cosinor(x_sample, y_sample_noisy, <span class="fl">100.0</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recovered Cosinor Parameters </span><span class="sc">{</span>a_coeffs[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss"> sin(omega t) + </span><span class="sc">{</span>a_coeffs[<span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss"> cos(omega t)"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Phase Estimate: </span><span class="sc">{</span>cosinor_phase(a_coeffs)<span class="sc">:.4f}</span><span class="ss"> versus the true phase: </span><span class="sc">{</span>phi_true<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_sample,y_sample_noisy, color<span class="op">=</span><span class="st">'k'</span>, s<span class="op">=</span><span class="dv">20</span>, label<span class="op">=</span><span class="st">'Noisy Measurements'</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>plt.plot(x_sample, y_sample, ls <span class="op">=</span> <span class="st">'--'</span>, color <span class="op">=</span> <span class="st">'k'</span>, label <span class="op">=</span> <span class="st">'True Signal'</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>plt.plot(x_sample, a_coeffs[<span class="dv">0</span>]<span class="op">*</span>np.sin(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">/</span><span class="fl">100.0</span> <span class="op">*</span>x_sample) <span class="op">+</span> a_coeffs[<span class="dv">1</span>]<span class="op">*</span>np.cos(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">/</span><span class="fl">100.0</span> <span class="op">*</span>x_sample), ls <span class="op">=</span> <span class="st">'--'</span>, color <span class="op">=</span> <span class="st">'r'</span>, label <span class="op">=</span> <span class="st">'Cosinor Fit'</span>)<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Cosinor Example Signal with Noise'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Recovered Cosinor Parameters 0.9207 sin(omega t) + -0.3776 cos(omega t)
+Phase Estimate: 1.9600 versus the true phase: 2.0000</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="08_phasetools_files/figure-html/cell-5-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="goals-cosinor-with-gaps" class="level2">
+<h2 class="anchored" data-anchor-id="goals-cosinor-with-gaps">GOALS: Cosinor with gaps</h2>
+<p>One of the main challenges with the cosinor method is that it assumes that the data is continuous. This is not always the case. For example, if you are measuring a signal at a fixed time interval, but the signal is not present at all times, then you will have gaps in your data.</p>
+<p>The GOALs algorithm (citation) is a modification of the cosinor method that allows for gaps in the data.</p>
+<hr>
+<p><a href="https://github.com/khannay/circadian/blob/main/circadian/phasetools.py#L37" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="cosinor_goals" class="level3">
+<h3 class="anchored" data-anchor-id="cosinor_goals">cosinor_goals</h3>
+<blockquote class="blockquote">
+<pre><code> cosinor_goals (t, y, tau:float)</code></pre>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>phi_true <span class="op">=</span> <span class="fl">2.0</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x_sample <span class="op">=</span> np.hstack((np.arange(<span class="dv">0</span>, <span class="dv">20</span>, <span class="dv">1</span>), np.arange(<span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">1</span>)))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>y_sample <span class="op">=</span> f_signal_cosinor(x_sample, phi_true) </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>y_sample_noisy <span class="op">=</span> y_sample <span class="op">+</span> np.random.normal(<span class="dv">0</span>, <span class="fl">0.5</span>, x_sample.shape)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>a_coeffs <span class="op">=</span> cosinor_goals(x_sample, y_sample_noisy, <span class="fl">100.0</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recovered GOALS Cosinor Parameters </span><span class="sc">{</span>a_coeffs[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss"> sin(omega t) + </span><span class="sc">{</span>a_coeffs[<span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss"> cos(omega t)"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"GOALS Phase Estimate: </span><span class="sc">{</span>cosinor_phase(a_coeffs)<span class="sc">:.4f}</span><span class="ss"> versus the true phase: </span><span class="sc">{</span>phi_true<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>a_coeffs_plain <span class="op">=</span> cosinor(x_sample, y_sample_noisy, <span class="fl">100.0</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recovered Cosinor Parameters </span><span class="sc">{</span>a_coeffs_plain[<span class="dv">0</span>]<span class="sc">:.4f}</span><span class="ss"> sin(omega t) + </span><span class="sc">{</span>a_coeffs_plain[<span class="dv">1</span>]<span class="sc">:.4f}</span><span class="ss"> cos(omega t)"</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Regular Cosinor Phase Estimate: </span><span class="sc">{</span>cosinor_phase(a_coeffs_plain)<span class="sc">:.4f}</span><span class="ss"> versus the true phase: </span><span class="sc">{</span>phi_true<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>x_fill <span class="op">=</span> np.arange(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>y_fill <span class="op">=</span> f_signal_cosinor(x_fill, phi_true)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>plt.scatter(x_sample,y_sample_noisy, color<span class="op">=</span><span class="st">'k'</span>, s<span class="op">=</span><span class="dv">20</span>, label<span class="op">=</span><span class="st">'Noisy Measurements'</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>plt.plot(x_fill, y_fill, ls <span class="op">=</span> <span class="st">'--'</span>, color <span class="op">=</span> <span class="st">'k'</span>, label <span class="op">=</span> <span class="st">'True Signal'</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>plt.plot(x_fill, a_coeffs[<span class="dv">0</span>]<span class="op">*</span>np.sin(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">/</span><span class="fl">100.0</span> <span class="op">*</span>x_fill) <span class="op">+</span> a_coeffs[<span class="dv">1</span>]<span class="op">*</span>np.cos(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">/</span><span class="fl">100.0</span> <span class="op">*</span>x_fill), ls <span class="op">=</span> <span class="st">'--'</span>, color <span class="op">=</span> <span class="st">'r'</span>, label <span class="op">=</span> <span class="st">'GOALs Cosinor Fit'</span>)<span class="op">;</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>plt.plot(x_fill, a_coeffs_plain[<span class="dv">0</span>]<span class="op">*</span>np.sin(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">/</span><span class="fl">100.0</span> <span class="op">*</span>x_fill) <span class="op">+</span> a_coeffs_plain[<span class="dv">1</span>]<span class="op">*</span>np.cos(<span class="dv">2</span><span class="op">*</span>np.pi<span class="op">/</span><span class="fl">100.0</span> <span class="op">*</span>x_fill), ls <span class="op">=</span> <span class="st">'--'</span>, color <span class="op">=</span> <span class="st">'b'</span>, label <span class="op">=</span> <span class="st">'Cosinor Fit'</span>)<span class="op">;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Cosinor (GOALS) Example Signal with Noise'</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Recovered GOALS Cosinor Parameters 0.3053 sin(omega t) + -0.7676 cos(omega t)
+GOALS Phase Estimate: 2.7630 versus the true phase: 2.0000
+Recovered Cosinor Parameters 0.5447 sin(omega t) + -0.5027 cos(omega t)
+Regular Cosinor Phase Estimate: 2.3162 versus the true phase: 2.0000</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="08_phasetools_files/figure-html/cell-7-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
